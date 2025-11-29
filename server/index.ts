@@ -17,7 +17,7 @@ declare module "http" {
 }
 
 // Serve attached_assets directory
-app.use("/attached_assets", express.static(path.resolve(import.meta.dirname, "../attached_assets")));
+app.use("/attached_assets", express.static(path.resolve(import.meta.dirname, "../client/public/attached_assets")));
 
 app.use(
   express.json({
