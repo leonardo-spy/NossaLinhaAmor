@@ -4,6 +4,9 @@ import { serveStatic } from "./static";
 import { createServer } from "http";
 import path from "path";
 
+// ... existing imports ...
+import { fileURLToPath } from "url";
+
 const app = express();
 const httpServer = createServer(app);
 
@@ -63,7 +66,9 @@ app.use((req, res, next) => {
   next();
 });
 
-(async () => {
+// Register routes synchronously (or await if needed, but routes.ts seems sync in effect)
+// We use an async wrapper for the startup logic that involves Vite or Listen
+const setupServer = async () => {
   await registerRoutes(httpServer, app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -83,11 +88,13 @@ app.use((req, res, next) => {
     const { setupVite } = await import("./vite");
     await setupVite(httpServer, app);
   }
+};
 
-  // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
+// Run setup
+await setupServer();
+
+// Only listen if run directly
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const port = parseInt(process.env.PORT || "5000", 10);
   httpServer.listen(
     {
@@ -99,4 +106,6 @@ app.use((req, res, next) => {
       log(`serving on port ${port}`);
     },
   );
-})();
+}
+
+export default app;
