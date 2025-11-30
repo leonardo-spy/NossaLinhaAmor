@@ -1,12 +1,12 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { storage } from "./storage.js";
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  
+
   app.get("/api/couple-info", async (req, res) => {
     try {
       const info = await storage.getCoupleInfo();
@@ -60,7 +60,7 @@ export async function registerRoutes(
       const now = new Date();
       const diffTime = Math.abs(now.getTime() - startDate.getTime());
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-      
+
       const years = Math.floor(diffDays / 365);
       const months = Math.floor(diffDays / 30);
       const weeks = Math.floor(diffDays / 7);
@@ -76,6 +76,7 @@ export async function registerRoutes(
         engagementDate: info.engagementDate,
       });
     } catch (error) {
+      console.error("Error in /api/time-together:", error);
       res.status(500).json({ message: "Error calculating time together" });
     }
   });

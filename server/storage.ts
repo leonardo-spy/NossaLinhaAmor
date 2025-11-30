@@ -1,5 +1,5 @@
-import { 
-  type User, 
+import {
+  type User,
   type InsertUser,
   type Milestone,
   type InsertMilestone,
@@ -7,21 +7,21 @@ import {
   type InsertGalleryPhoto,
   type CoupleInfo,
   type InsertCoupleInfo
-} from "@shared/schema";
+} from "../shared/schema.js";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  
+
   getMilestones(): Promise<Milestone[]>;
   getMilestone(id: string): Promise<Milestone | undefined>;
   createMilestone(milestone: InsertMilestone): Promise<Milestone>;
-  
+
   getGalleryPhotos(): Promise<GalleryPhoto[]>;
   createGalleryPhoto(photo: InsertGalleryPhoto): Promise<GalleryPhoto>;
-  
+
   getCoupleInfo(): Promise<CoupleInfo | undefined>;
   updateCoupleInfo(info: InsertCoupleInfo): Promise<CoupleInfo>;
 }
@@ -36,7 +36,7 @@ export class MemStorage implements IStorage {
     this.users = new Map();
     this.milestones = new Map();
     this.galleryPhotos = new Map();
-    
+
     this.initializeDefaultData();
   }
 
@@ -144,7 +144,7 @@ export class MemStorage implements IStorage {
 
   async createMilestone(milestone: InsertMilestone): Promise<Milestone> {
     const id = randomUUID();
-    const newMilestone: Milestone = { 
+    const newMilestone: Milestone = {
       id,
       title: milestone.title,
       description: milestone.description,
@@ -162,7 +162,7 @@ export class MemStorage implements IStorage {
 
   async createGalleryPhoto(photo: InsertGalleryPhoto): Promise<GalleryPhoto> {
     const id = randomUUID();
-    const newPhoto: GalleryPhoto = { 
+    const newPhoto: GalleryPhoto = {
       id,
       imageUrl: photo.imageUrl,
       caption: photo.caption ?? null,
@@ -178,7 +178,7 @@ export class MemStorage implements IStorage {
 
   async updateCoupleInfo(info: InsertCoupleInfo): Promise<CoupleInfo> {
     const id = this.coupleInfo?.id || randomUUID();
-    const updated: CoupleInfo = { 
+    const updated: CoupleInfo = {
       id,
       partnerOneName: info.partnerOneName,
       partnerTwoName: info.partnerTwoName,
