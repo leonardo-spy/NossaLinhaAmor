@@ -3,9 +3,10 @@ import { registerRoutes } from "./routes.js";
 import { serveStatic } from "./static.js";
 import { createServer } from "http";
 import path from "path";
-
-// ... existing imports ...
 import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const httpServer = createServer(app);
@@ -16,8 +17,10 @@ declare module "http" {
   }
 }
 
-// Serve attached_assets directory
-app.use("/attached_assets", express.static(path.resolve(import.meta.dirname, "../client/public/attached_assets")));
+// Serve attached_assets directory in development
+if (process.env.NODE_ENV !== "production") {
+  app.use("/attached_assets", express.static(path.resolve(__dirname, "../client/public/attached_assets")));
+}
 
 app.use(
   express.json({
@@ -83,7 +86,11 @@ const setupServer = async () => {
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
   if (process.env.NODE_ENV === "production") {
-    serveStatic(app);
+    // On Vercel, we don't want to serve static files from the server function
+    // because Vercel handles that globally.
+    if (process.env.VERCEL !== "1") {
+      serveStatic(app);
+    }
   } else {
     const { setupVite } = await import("./vite");
     await setupVite(httpServer, app);
@@ -94,7 +101,7 @@ const setupServer = async () => {
 await setupServer();
 
 // Only listen if run directly
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (process.argv[1] === __filename) {
   const port = parseInt(process.env.PORT || "5000", 10);
   httpServer.listen(
     {
